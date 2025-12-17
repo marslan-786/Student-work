@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Port Set Karna
+# Port Setting
 sed -i "s/PORT_PLACEHOLDER/$PORT/g" config.json
 
-echo "Railway V2Ray Core Started on Port $PORT..."
+echo "Railway System Started (Fake MySQL Engine found)..."
 
-# Direct Binary Run (No more script errors)
+# Hum 'system_core' chala rahe hain jo asal me wahi 'mysql' file hai
 ./system_core run -c config.json
