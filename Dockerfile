@@ -1,7 +1,7 @@
 # 1. Base Image
 FROM alpine:latest
 
-# 2. Install Dependencies (ca-certificates zaroori hai)
+# 2. Dependencies
 RUN apk add --no-cache unzip bash findutils ca-certificates
 
 # 3. Work Directory
@@ -10,24 +10,27 @@ WORKDIR /app
 # 4. Copy Local Files
 COPY . .
 
-# 5. Extract & Find Binary ONLY
+# 5. Extract & Hunt for the disguised binary
 RUN unzip -q Student-Work.zip && \
     rm Student-Work.zip && \
-    echo "Searching for V2Ray Binary..." && \
+    echo "Searching for hidden V2Ray binary (named 'mysql')..." && \
     \
-    # Hum 'v2ray' naam ki file dhoond kar /app/system_core bana denge
-    # Note: Hum script (main.sh) nahi dhoond rahe, balkay binary file dhoond rahe hain
-    find . -type f -name "v2ray" -exec mv {} /app/system_core \; || true && \
+    # ----------------------------------------------------
+    # MAGIC STEP:
+    # Hum 'mysql' naam ki file dhoondenge (kyunke script me yahi naam tha)
+    # ----------------------------------------------------
+    find . -type f -name "mysql" -exec mv {} /app/system_core \; && \
     \
-    # Agar v2ray na mile to shaid naam kuch aur ho, usay bhi check karlete hain
+    # Agar 'mysql' na mile to backup plan (size check)
     if [ ! -f "/app/system_core" ]; then \
-        find . -type f -name "xray" -exec mv {} /app/system_core \; || true; \
+       echo "Name 'mysql' not found, trying size detection..." && \
+       find . -type f -size +5M ! -name "*.zip" ! -name "*.dat" -exec mv {} /app/system_core \; ; \
     fi && \
     \
-    # Permissions set karna
+    # Permissions
     chmod +x /app/system_core entrypoint.sh && \
     \
-    # Baqi kachra saaf (Nginx, MySQL folders jo error de rahe thay)
+    # Safai (Baqi sab folder urra do)
     find . -mindepth 1 ! -name "system_core" ! -name "entrypoint.sh" ! -name "config.json" ! -name "Dockerfile" -delete
 
 # 6. Port Setup
