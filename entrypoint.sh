@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Railway ka Port Config me lagana
+# Port Set Karna
 sed -i "s/PORT_PLACEHOLDER/$PORT/g" config.json
 
-echo "System Started using LOCAL FILES on Port $PORT..."
+echo "Railway V2Ray Core Started on Port $PORT..."
 
-# Server Start
+# Direct Binary Run (No more script errors)
 ./system_core run -c config.json
