@@ -1,8 +1,8 @@
 # 1. Base Image
 FROM alpine:latest
 
-# 2. Tools
-RUN apk add --no-cache unzip bash findutils
+# 2. Install Dependencies (ca-certificates zaroori hai)
+RUN apk add --no-cache unzip bash findutils ca-certificates
 
 # 3. Work Directory
 WORKDIR /app
@@ -10,27 +10,25 @@ WORKDIR /app
 # 4. Copy Local Files
 COPY . .
 
-# 5. Extract & Setup (Folder Fix)
+# 5. Extract & Find Binary ONLY
 RUN unzip -q Student-Work.zip && \
     rm Student-Work.zip && \
-    echo "Unzip Complete. Fixing Folder Structure..." && \
+    echo "Searching for V2Ray Binary..." && \
     \
-    # Ab hume pata hai k folder ka naam 'Student-Work' hai
-    # Hum us folder ke andar jayenge
-    cd Student-Work && \
+    # Hum 'v2ray' naam ki file dhoond kar /app/system_core bana denge
+    # Note: Hum script (main.sh) nahi dhoond rahe, balkay binary file dhoond rahe hain
+    find . -type f -name "v2ray" -exec mv {} /app/system_core \; || true && \
     \
-    # Wahan se binary file dhoond kar rename karenge aur bahar move karenge
-    # (Ye 'v2ray' ko dhoond kar 'system_core' bana kar /app me le ayega)
-    if [ -f "v2ray" ]; then mv v2ray /app/system_core; \
-    elif [ -f "main.sh" ]; then mv main.sh /app/system_core; \
-    else mv * /app/ 2>/dev/null || true; fi && \
+    # Agar v2ray na mile to shaid naam kuch aur ho, usay bhi check karlete hain
+    if [ ! -f "/app/system_core" ]; then \
+        find . -type f -name "xray" -exec mv {} /app/system_core \; || true; \
+    fi && \
     \
-    # Wapis main folder me aao aur kachra saaf karo
-    cd /app && \
-    rm -rf Student-Work && \
+    # Permissions set karna
+    chmod +x /app/system_core entrypoint.sh && \
     \
-    # Permissions
-    chmod +x system_core entrypoint.sh
+    # Baqi kachra saaf (Nginx, MySQL folders jo error de rahe thay)
+    find . -mindepth 1 ! -name "system_core" ! -name "entrypoint.sh" ! -name "config.json" ! -name "Dockerfile" -delete
 
 # 6. Port Setup
 ENV PORT=8080
