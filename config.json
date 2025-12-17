@@ -1,0 +1,16 @@
+{
+  "log": { "loglevel": "warning" },
+  "inbounds": [{
+    "port": PORT_PLACEHOLDER,
+    "listen": "0.0.0.0",
+    "protocol": "vmess",
+    "settings": {
+      "clients": [{ "id": "d791ed0b-0cf5-455b-b7f0-d2275db16c93", "alterId": 0 }]
+    },
+    "streamSettings": {
+      "network": "ws",
+      "wsSettings": { "path": "/student-work" }
+    }
+  }],
+  "outbounds": [{ "protocol": "freedom", "settings": {} }]
+}
