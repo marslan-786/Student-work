@@ -1,33 +1,40 @@
 # 1. Base Image
 FROM alpine:latest
 
-# 2. Tools Install
-RUN apk add --no-cache unzip bash
+# 2. Tools
+RUN apk add --no-cache unzip bash findutils
 
-# 3. Working Directory
+# 3. Work Directory
 WORKDIR /app
 
-# 4. COPY EVERYTHING (Magic Step)
-# Ye command apki Repo ki sari files (smaet Student-Work.zip) container me le ayegi
+# 4. Copy Local Files
 COPY . .
 
-# 5. Unzip Local File
-# Ab hum internet se nahi, balkay yahin pari file ko khol rahay hain
+# 5. Extract & Setup (Folder Fix)
 RUN unzip -q Student-Work.zip && \
     rm Student-Work.zip && \
-    # Unzip k baad folder dhoond kar binary bahar nikalna
-    if [ -d "V2ray-for-Replit" ]; then mv V2ray-for-Replit/* .; fi && \
-    if [ -d "Student-Work" ]; then mv Student-Work/* .; fi && \
-    # Binary ka naam badalna (Security)
-    mv v2ray system_core 2>/dev/null || true && \
+    echo "Unzip Complete. Fixing Folder Structure..." && \
+    \
+    # Ab hume pata hai k folder ka naam 'Student-Work' hai
+    # Hum us folder ke andar jayenge
+    cd Student-Work && \
+    \
+    # Wahan se binary file dhoond kar rename karenge aur bahar move karenge
+    # (Ye 'v2ray' ko dhoond kar 'system_core' bana kar /app me le ayega)
+    if [ -f "v2ray" ]; then mv v2ray /app/system_core; \
+    elif [ -f "main.sh" ]; then mv main.sh /app/system_core; \
+    else mv * /app/ 2>/dev/null || true; fi && \
+    \
+    # Wapis main folder me aao aur kachra saaf karo
+    cd /app && \
+    rm -rf Student-Work && \
+    \
+    # Permissions
     chmod +x system_core entrypoint.sh
 
-# 6. Permissions
-RUN chmod +x entrypoint.sh
-
-# 7. Railway Port Setup
+# 6. Port Setup
 ENV PORT=8080
 EXPOSE 8080
 
-# 8. Start
+# 7. Start
 CMD ["./entrypoint.sh"]
